@@ -1,0 +1,46 @@
+{
+  "name": "pi-claude-peers",
+  "version": "0.1.0",
+  "description": "Two-way messaging between pi and Claude Code sessions on the same machine",
+  "license": "MIT",
+  "author": "sunflowerfa",
+  "homepage": "https://github.com/sunflowerfa/pi-claude-peers#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sunflowerfa/pi-claude-peers.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sunflowerfa/pi-claude-peers/issues"
+  },
+  "type": "module",
+  "keywords": [
+    "pi-package",
+    "pi",
+    "claude-code",
+    "agent",
+    "ipc",
+    "unix-socket"
+  ],
+  "pi": {
+    "extensions": [
+      "./extensions"
+    ]
+  },
+  "files": [
+    "extensions",
+    "README.md",
+    "README.zh-CN.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node --test --experimental-strip-types"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*"
+  },
+  "peerDependenciesMeta": {
+    "@earendil-works/pi-coding-agent": {
+      "optional": true
+    }
+  }
+}
