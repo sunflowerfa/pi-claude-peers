@@ -2,6 +2,10 @@
 
 *[中文](README.zh-CN.md)*
 
+[![npm](https://img.shields.io/npm/v/pi-claude-peers)](https://www.npmjs.com/package/pi-claude-peers)
+[![license](https://img.shields.io/npm/l/pi-claude-peers)](./LICENSE)
+[![pi package](https://img.shields.io/badge/pi-package-5b5bd6)](https://pi.dev/packages)
+
 Two-way messaging between [pi](https://pi.dev) and [Claude Code](https://claude.com/claude-code) sessions running on the same machine.
 
 Claude Code sessions already find and message each other through a local registry and per-session Unix sockets — that is what its `ListAgents` and `SendMessage` tools use. This extension makes a pi session a participant in the same system: pi shows up in Claude Code's session list, receives messages sent to it, and gets two tools of its own for listing and messaging the other agents.

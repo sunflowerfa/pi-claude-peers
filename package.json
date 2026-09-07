@@ -1,6 +1,6 @@
 {
   "name": "pi-claude-peers",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Two-way messaging between pi and Claude Code sessions on the same machine",
   "license": "MIT",
   "author": "sunflowerfa",

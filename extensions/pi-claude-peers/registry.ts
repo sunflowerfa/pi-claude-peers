@@ -12,8 +12,18 @@
 
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
-import { chmodSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
-import { homedir } from "node:os";
+import {
+	chmodSync,
+	existsSync,
+	mkdirSync,
+	readdirSync,
+	readFileSync,
+	readlinkSync,
+	rmSync,
+	statSync,
+	writeFileSync,
+} from "node:fs";
+import { homedir, hostname } from "node:os";
 import { basename, join } from "node:path";
 
 export const SESSIONS_DIR = join(
@@ -61,11 +71,46 @@ export function procStart(pid: number): string | undefined {
 	try {
 		return execFileSync("ps", ["-o", "lstart=", "-p", String(pid)], {
 			encoding: "utf8",
-			env: { ...process.env, TZ: "UTC" },
+			// Claude Code reads this the same way, as `LC_ALL=C TZ=UTC ps -o lstart=`.
+			// Both are needed: the timezone shifts the clock, the locale renames the
+			// month and weekday, and the result is compared as a string.
+			env: { ...process.env, TZ: "UTC", LC_ALL: "C" },
 		}).trim();
 	} catch {
 		return undefined;
 	}
+}
+
+/**
+ * Identifies the pid namespace a registration's `pid` belongs to, so peers do
+ * not compare pids across machines or containers. Claude Code derives it per
+ * platform, and a value it does not recognise makes it treat our pid as
+ * belonging to a foreign domain — so this mirrors its derivation rather than
+ * reporting `process.platform`.
+ *
+ * The "darwin:" prefix on every non-macOS branch is Claude Code's own spelling,
+ * not a mistake here.
+ */
+export function pidDomain(): string {
+	if (process.platform === "win32") {
+		return `darwin:${hostname().toLowerCase()}`;
+	}
+	if (process.platform !== "linux") {
+		return "darwin";
+	}
+	let machineId = "";
+	try {
+		machineId = readFileSync("/etc/machine-id", "utf8").trim();
+	} catch {
+		// Absent on some distributions; Claude Code also falls back to empty.
+	}
+	let pidNamespace = "";
+	try {
+		pidNamespace = readlinkSync("/proc/self/ns/pid");
+	} catch {
+		// Unreadable inside some sandboxes.
+	}
+	return `darwin:${machineId}:${pidNamespace}`;
 }
 
 function isAlive(pid: number, recordedStart: string | undefined): boolean {
@@ -113,7 +158,7 @@ export function register(record: SessionRecord & { peerToken: string }): { jsonP
 				peerFeatures: [],
 				kind: record.kind ?? "interactive",
 				entrypoint: "cli",
-				pidDomain: process.platform,
+				pidDomain: pidDomain(),
 				messagingSocketPath: record.messagingSocketPath,
 				name: record.name,
 				nameSource: "derived",
@@ -130,7 +175,7 @@ export function register(record: SessionRecord & { peerToken: string }): { jsonP
 
 	writeFileSync(
 		keyPath,
-		JSON.stringify({ peerToken: record.peerToken, procStart: start, pidDomain: process.platform }),
+		JSON.stringify({ peerToken: record.peerToken, procStart: start, pidDomain: pidDomain() }),
 		{ mode: 0o600 },
 	);
 	chmodSync(keyPath, 0o600);

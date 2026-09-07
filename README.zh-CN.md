@@ -2,6 +2,10 @@
 
 *[English](README.md)*
 
+[![npm](https://img.shields.io/npm/v/pi-claude-peers)](https://www.npmjs.com/package/pi-claude-peers)
+[![license](https://img.shields.io/npm/l/pi-claude-peers)](./LICENSE)
+[![pi package](https://img.shields.io/badge/pi-package-5b5bd6)](https://pi.dev/packages)
+
 让同一台机器上的 [pi](https://pi.dev) 与 [Claude Code](https://claude.com/claude-code) 会话互相发消息。
 
 Claude Code 的会话之间本来就能互相发现和通信——它的 `ListAgents` 和 `SendMessage` 用的就是一份本地注册表加每会话一个 Unix socket。这个扩展让 pi 会话成为其中的一员：pi 会出现在 Claude Code 的会话列表里、能收到发给它的消息，同时获得两个自己的工具用来列举和消息其他 agent。
